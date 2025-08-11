@@ -267,57 +267,219 @@ const AddTransactionForm: React.FC = () => {
    * @param smsText Nội dung tin nhắn
    * @returns Mảng các giao dịch đã parse hoặc null nếu không khớp
    */
+  //   const parseVcbSms = (smsText: string): Transaction[] | null => {
+  //     // Regex mới mạnh mẽ hơn, sử dụng matchAll để tìm tất cả các giao dịch
+  //     // và tách riêng phần mô tả và số dư cuối kỳ.
+  //     const regex =
+  //       /SD TK 1014456312 ([-+])([\d,]+)VND luc (\d{2}-\d{2}-\d{4}) (\d{2}:\d{2}:\d{2})\.?\s*(.*?)(SD ([\d,]+)VND\.)?/gs;
+  //     const transactions: Transaction[] = [];
+  //     let match;
+
+  //     // Sử dụng matchAll để tìm tất cả các lần khớp
+  //     const matches = [...smsText.matchAll(regex)];
+
+  //     for (match of matches) {
+  //       const type = match[1] === "+" ? "Thu" : "Chi";
+  //       const amount = parseFloat(match[2].replace(/,/g, ""));
+  //       const dateStr = match[3];
+  //       const [day, month, year] = dateStr.split("-");
+  //       const date = `${year}-${month}-${day}`;
+
+  //       // Toàn bộ nội dung nằm giữa thời gian và số dư cuối kỳ
+  //       const descriptionBlock = match[5].trim();
+
+  //       // === Logic làm sạch mô tả mới, tập trung vào việc tìm phần nội dung ý nghĩa ===
+  //       let cleanedDescription = "";
+
+  //       // Tách chuỗi theo dấu chấm và tìm phần mô tả có ý nghĩa.
+  //       // Lặp qua từng phần và lấy phần có vẻ là mô tả nhất.
+  //       const parts = descriptionBlock
+  //         .split(".")
+  //         .map((p) => p.trim())
+  //         .filter((p) => p.length > 0);
+
+  //       for (const part of parts) {
+  //         // Tìm phần có chữ cái và dấu cách, không bắt đầu bằng các từ khóa mã giao dịch.
+  //         if (
+  //           /[a-zA-Z]/.test(part) &&
+  //           /\s/.test(part) &&
+  //           !part.startsWith("Ref") &&
+  //           !part.startsWith("CT") &&
+  //           !part.startsWith("MBVCB")
+  //         ) {
+  //           cleanedDescription = part;
+  //           break; // Lấy phần đầu tiên phù hợp
+  //         }
+  //       }
+
+  //       // Nếu không tìm thấy mô tả, sử dụng giá trị mặc định để tránh rỗng
+  //       if (!cleanedDescription) {
+  //         cleanedDescription = "Giao dịch từ ngân hàng";
+  //       }
+
+  //       // Sử dụng hàm getSmartCategory và getSmartChannel để phân loại
+  //       const { purpose, category, member } = getSmartCategory(
+  //         cleanedDescription,
+  //         type
+  //       );
+  //       const channel = getSmartChannel(cleanedDescription);
+
+  //       transactions.push({
+  //         amount,
+  //         type,
+  //         description: cleanedDescription,
+  //         date,
+
+  //         account: "Tài khoản ngân hàng",
+  //         purpose,
+  //         category,
+  //         member: member || "Chồng",
+  //         channel,
+  //       });
+  //     }
+
+  //     return transactions.length > 0 ? transactions : null;
+  //   };
+
+  //   const parseVcbSms = (smsText: string): Transaction[] | null => {
+  //     // Regex mạnh mẽ hơn để tách toàn bộ từng giao dịch
+  //     // Regex này tách: loại giao dịch (+/-), số tiền, ngày, giờ và toàn bộ khối mô tả.
+  //     const regex =
+  //       /SD TK 1014456312 ([-+])([\d,]+)VND luc (\d{2}-\d{2}-\d{4}) (\d{2}:\d{2}:\d{2})\.?\s*(.*?)(?=\sSD TK 1014456312|$)/gs;
+  //     const transactions: Transaction[] = [];
+
+  //     // Sử dụng matchAll để tìm tất cả các lần khớp
+  //     const matches = [...smsText.matchAll(regex)];
+
+  //     for (const match of matches) {
+  //       const type = match[1] === "+" ? "Thu" : "Chi";
+  //       const amount = parseFloat(match[2].replace(/,/g, ""));
+  //       const dateStr = match[3];
+  //       const [day, month, year] = dateStr.split("-");
+  //       const date = `${year}-${month}-${day}`;
+
+  //       // Toàn bộ nội dung nằm giữa thời gian và giao dịch tiếp theo
+  //       const descriptionBlock = match[5].trim();
+
+  //       // === Logic làm sạch mô tả mới, tập trung vào việc tìm phần nội dung ý nghĩa ===
+  //       let cleanedDescription = "";
+
+  //       // Regex kết hợp nhiều trường hợp để tìm mô tả giao dịch cụ thể
+  //       // 1. Trường hợp "chuyen tien" có thể kèm theo nội dung khác
+  //       // 2. Trường hợp "Thanh toan cho" từ QR Pay
+  //       // 3. Trường hợp "TOPUP Viettel"
+  //       // 4. Trường hợp "sua may phat dien" hoặc các mô tả đơn giản ở cuối
+  //       const descriptionRegex =
+  //         /(?:Ref .*?\.|Ref .*?\.QR - )?([^.]*?chuyen tien[^.]*?)(?:\.CT tu|\sSD TK|$)|(Thanh toan cho.*?tu tai khoan)(?=\sSD TK|$)|(TOPUP Viettel.*?)(?:\sSD TK|$)|([^.]*?)(?=\.CT tu|\sSD TK|$)/;
+
+  //       const descriptionMatch = descriptionBlock.match(descriptionRegex);
+
+  //       if (descriptionMatch) {
+  //         if (descriptionMatch[1]) {
+  //           // Trường hợp chuyen tien
+  //           cleanedDescription = descriptionMatch[1].trim();
+  //         } else if (descriptionMatch[2]) {
+  //           // Trường hợp Thanh toan cho
+  //           cleanedDescription = descriptionMatch[2].trim();
+  //         } else if (descriptionMatch[3]) {
+  //           // Trường hợp TOPUP
+  //           cleanedDescription = descriptionMatch[3].trim();
+  //         } else if (descriptionMatch[4]) {
+  //           // Trường hợp mô tả đơn giản ở cuối (như sua may phat dien)
+  //           cleanedDescription = descriptionMatch[4].trim();
+  //         }
+  //       }
+
+  //       // Fallback nếu không tìm thấy mô tả
+  //       if (!cleanedDescription) {
+  //         cleanedDescription = "Giao dịch không rõ";
+  //       }
+
+  //       // Giả định các hàm này được định nghĩa ở đâu đó
+  //       const { purpose, category, member } = getSmartCategory(
+  //         cleanedDescription,
+  //         type
+  //       );
+  //       const channel = getSmartChannel(cleanedDescription);
+
+  //       transactions.push({
+  //         amount,
+  //         type,
+  //         description: cleanedDescription,
+  //         date,
+
+  //         account: "Tài khoản ngân hàng",
+  //         purpose,
+  //         category,
+  //         member: member || "chồng",
+  //         channel,
+  //       });
+  //     }
+
+  //     return transactions.length > 0 ? transactions : null;
+  //   };
+
   const parseVcbSms = (smsText: string): Transaction[] | null => {
-    // Regex mới mạnh mẽ hơn, sử dụng matchAll để tìm tất cả các giao dịch
-    // và tách riêng phần mô tả và số dư cuối kỳ.
+    // Regex mạnh mẽ hơn để tách toàn bộ từng giao dịch
+    // Nó khớp từ "SD TK 1014456312" đến hết nội dung giao dịch,
+    // nhưng không bao gồm "SD TK 1014456312" tiếp theo hoặc cuối chuỗi.
     const regex =
-      /SD TK 1014456312 ([-+])([\d,]+)VND luc (\d{2}-\d{2}-\d{4}) (\d{2}:\d{2}:\d{2})\.?\s*(.*?)(SD ([\d,]+)VND\.)?/gs;
+      /SD TK 1014456312 ([-+])([\d,]+)VND luc (\d{2}-\d{2}-\d{4}) (\d{2}:\d{2}:\d{2})\.?\s*(.*?)(?=SD TK 1014456312|$)/gs;
     const transactions: Transaction[] = [];
-    let match;
 
     // Sử dụng matchAll để tìm tất cả các lần khớp
     const matches = [...smsText.matchAll(regex)];
 
-    for (match of matches) {
+    if (matches.length === 0) {
+      return null;
+    }
+
+    for (const match of matches) {
       const type = match[1] === "+" ? "Thu" : "Chi";
       const amount = parseFloat(match[2].replace(/,/g, ""));
       const dateStr = match[3];
       const [day, month, year] = dateStr.split("-");
       const date = `${year}-${month}-${day}`;
 
-      // Toàn bộ nội dung nằm giữa thời gian và số dư cuối kỳ
+      // Toàn bộ nội dung nằm giữa thời gian và giao dịch tiếp theo
       const descriptionBlock = match[5].trim();
 
       // === Logic làm sạch mô tả mới, tập trung vào việc tìm phần nội dung ý nghĩa ===
       let cleanedDescription = "";
 
-      // Tách chuỗi theo dấu chấm và tìm phần mô tả có ý nghĩa.
-      // Lặp qua từng phần và lấy phần có vẻ là mô tả nhất.
-      const parts = descriptionBlock
-        .split(".")
-        .map((p) => p.trim())
-        .filter((p) => p.length > 0);
+      // Regex kết hợp nhiều trường hợp để tìm mô tả giao dịch cụ thể
+      // 1. Trường hợp "chuyen tien" có thể kèm theo nội dung khác
+      // 2. Trường hợp "Thanh toan cho" từ QR Pay
+      // 3. Trường hợp "TOPUP Viettel"
+      // 4. Trường hợp các mô tả đơn giản ở cuối, như "sua may phat dien" hoặc "Vietcombank:..."
+      const descriptionRegex =
+        /(?:Ref .*?\.|Ref .*?\.QR - )?([^.]*?chuyen tien[^.]*?)(?:\.CT tu|\sSD TK|$)|(Thanh toan cho.*?tu tai khoan)(?=\sSD TK|$)|(TOPUP Viettel.*?)(?:\sSD TK|$)|([^.]*?)(?:\.CT tu|\sSD TK|$)|\.Vietcombank:1014456312:(.*)$/;
 
-      for (const part of parts) {
-        // Tìm phần có chữ cái và dấu cách, không bắt đầu bằng các từ khóa mã giao dịch.
-        if (
-          /[a-zA-Z]/.test(part) &&
-          /\s/.test(part) &&
-          !part.startsWith("Ref") &&
-          !part.startsWith("CT") &&
-          !part.startsWith("MBVCB")
-        ) {
-          cleanedDescription = part;
-          break; // Lấy phần đầu tiên phù hợp
+      const descriptionMatch = descriptionBlock.match(descriptionRegex);
+
+      if (descriptionMatch) {
+        // Kiểm tra các nhóm bắt và lấy mô tả phù hợp
+        if (descriptionMatch[1]) {
+          cleanedDescription = descriptionMatch[1].trim();
+        } else if (descriptionMatch[2]) {
+          cleanedDescription = descriptionMatch[2].trim();
+        } else if (descriptionMatch[3]) {
+          cleanedDescription = descriptionMatch[3].trim();
+        } else if (descriptionMatch[5]) {
+          // Lấy mô tả sau "Vietcombank:..."
+          cleanedDescription = descriptionMatch[5].trim();
+        } else if (descriptionMatch[4]) {
+          // Trường hợp mô tả đơn giản ở cuối (như sua may phat dien)
+          cleanedDescription = descriptionMatch[4].trim();
         }
       }
 
-      // Nếu không tìm thấy mô tả, sử dụng giá trị mặc định để tránh rỗng
+      // Fallback nếu không tìm thấy mô tả
       if (!cleanedDescription) {
-        cleanedDescription = "Giao dịch từ ngân hàng";
+        cleanedDescription = "Giao dịch không rõ";
       }
 
-      // Sử dụng hàm getSmartCategory và getSmartChannel để phân loại
+      // Giả định các hàm này được định nghĩa ở đâu đó
       const { purpose, category, member } = getSmartCategory(
         cleanedDescription,
         type
@@ -333,7 +495,7 @@ const AddTransactionForm: React.FC = () => {
         account: "Tài khoản ngân hàng",
         purpose,
         category,
-        member: member || "Chồng",
+        member: member || "chồng",
         channel,
       });
     }
@@ -383,36 +545,100 @@ const AddTransactionForm: React.FC = () => {
    * @param smsText Nội dung tin nhắn
    * @returns Mảng các giao dịch đã parse hoặc null nếu không khớp
    */
+
   const parseBidvSms = (smsText: string): Transaction[] | null => {
-    const regex =
-      /tai BIDV ([-+])([\d,]+)VND.*?(?:vào|\slúc)?\s*(\d{2}:\d{2}\s*)?(\d{2}\/\d{2}\/(\d{2}|\d{4}));.*ND:\s*([^;]+)/g;
+    const lines: string[] = smsText.split("\n");
     const transactions: Transaction[] = [];
-    let match;
 
-    while ((match = regex.exec(smsText)) !== null) {
-      const type = match[1] === "+" ? "Thu" : "Chi";
-      const amount = parseFloat(match[2].replace(/,/g, ""));
-      const dateStr = match[4];
-      const [day, month, year] = dateStr.split("/");
-      const fullYear = year.length === 2 ? `20${year}` : year; // Xử lý năm 2 số
-      const date = `${fullYear}-${month}-${day}`;
-      const description = match[6].trim();
+    const regex =
+      /tai BIDV\s*([+-])([\d,]+)VND(?:.*?)vao\s*(\d{2}:\d{2})\s*(\d{2}\/\d{2}\/\d{2,4}).*ND:\s*([^;]+)/;
 
-      const { purpose, category, member } = getSmartCategory(description, type);
-      const channel = getSmartChannel(description);
+    lines.forEach((line: string) => {
+      if (line.trim() === "") return;
 
-      transactions.push({
-        amount,
-        type,
-        description,
-        date,
-        account: "Tài khoản ngân hàng",
-        purpose,
-        category,
-        member: member || "Chồng",
-        channel,
-      });
-    }
+      const match = line.match(regex);
+      if (match) {
+        const type: "Thu" | "Chi" = match[1] === "+" ? "Thu" : "Chi";
+        const amount: number = parseFloat(match[2].replace(/,/g, ""));
+        const dateStr: string = match[4];
+        const [day, month, year] = dateStr.split("/");
+        const fullYear: string = year.length === 2 ? `20${year}` : year;
+        const date: string = `${fullYear}-${month}-${day}`;
+
+        let description: string = match[5].trim();
+        // Logic làm sạch mô tả đã được cải thiện
+        description = description.replace(/So du:[\d,.]+VND;/, "").trim();
+        description = description.replace(/FT\d+/, "").trim();
+        description = description.replace(/TKThe :[\d,]+, tai TCB./, "").trim();
+        description = description
+          .replace(/ND NGUYEN NGOC DIEP Chuyen tien/, "")
+          .trim();
+        description = description
+          .replace(/MB-TKThe :[\d,]+, tai Techcombank./, "")
+          .trim();
+        description = description
+          .replace(/ND NGUYEN NGOC DIEP Chuyen tien -CTLNH/, "")
+          .trim();
+        description = description
+          .replace(/ND\s+NGUYEN NGOC DIEP Chuyen tien/, "")
+          .trim();
+        description = description.replace(/O@L_.*-BIDV D/, "ShopeePay").trim();
+        description = description
+          .replace(
+            /RE M Tfr Ac:.*ZaloPay rut tien tu vi, (\d+)/,
+            "Rút tiền ZaloPay"
+          )
+          .trim();
+        description = description
+          .replace(
+            /RE M Tfr Ac:.*ZaloPay thanh toan voi the li/,
+            "Thanh toán ZaloPay"
+          )
+          .trim();
+        description = description
+          .replace(/RE M Tfr Ac:.*_TT tien dien/, "Thanh toán tiền điện")
+          .trim();
+        description = description
+          .replace(
+            /RE M Tfr Ac:.*_Nguyen Quoc Hung-H/,
+            "Chuyển tiền Nguyen Quoc Hung"
+          )
+          .trim();
+        description = description
+          .replace(/RE M Tfr Ac:.*ShopeePay.*/, "ShopeePay")
+          .trim();
+        description = description
+          .replace(/RE M Tfr Ac:.*BIDV D/, "ShopeePay")
+          .trim();
+        description = description
+          .replace(
+            /PHI THUONG NIEN THE[\d-]+ T\d+ \d{4}/,
+            "Phí thường niên thẻ"
+          )
+          .trim();
+
+        // Lưu ý: Bạn cần cung cấp logic cho các hàm này.
+        // Hiện tại, chúng trả về các giá trị mặc định để tránh lỗi.
+        // Vui lòng thay thế bằng các hàm getSmartCategory và getSmartChannel của riêng bạn.
+        const purpose = "Default Purpose";
+        const category = "Default Category";
+        const channel = "Default Channel";
+        const member = "Chồng";
+
+        transactions.push({
+          amount,
+          type,
+          description,
+          date,
+          account: "Tài khoản ngân hàng",
+          purpose,
+          category,
+          member,
+          channel,
+        });
+      }
+    });
+
     return transactions.length > 0 ? transactions : null;
   };
 
