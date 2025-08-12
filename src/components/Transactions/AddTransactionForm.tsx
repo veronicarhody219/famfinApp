@@ -1113,12 +1113,12 @@
 import React, { useState, useEffect } from "react";
 import type { ChangeEvent } from "react";
 import { collection, onSnapshot, query } from "firebase/firestore";
-import { db, appId, auth } from "../firebase/config";
-import Dashboard from "./Dashboard";
+import { db, appId, auth } from "../../firebase/config";
+import Dashboard from "../../components/Dashboard";
 import TransactionList from "./TransactionList";
 
 // Import các kiểu dữ liệu từ file mới
-import type { Transaction, FormElement } from "../types";
+import type { Transaction, FormElement } from "../../types";
 
 // Import các hằng số từ file mới
 import {
@@ -1128,13 +1128,13 @@ import {
   MEMBERS,
   CHANNELS,
   CATEGORIES_BY_PURPOSE,
-} from "../helpers/constants";
+} from "../../helpers/constants";
 
 // Import các hàm phân tích từ file mới
-import { parseSms } from "../helpers/parsers";
+import { parseSms } from "../../helpers/parsers";
 
 // Import hàm thêm giao dịch từ file API
-import { addTransactions } from "../api/firestore";
+import { addTransactions } from "../../api/firestore";
 
 const AddTransactionForm: React.FC = () => {
   // --- STATE ---
