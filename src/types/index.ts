@@ -41,3 +41,8 @@ export interface CustomTooltip {
   payload?: any[];
   label?: string | number;
 }
+
+export interface CategorizedData {
+  name: string;
+  value: number;
+}

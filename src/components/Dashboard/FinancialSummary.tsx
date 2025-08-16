@@ -20,6 +20,18 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({
     .reduce((sum, tx) => sum + tx.amount, 0);
 
   const balance = totalCredit - totalDebit;
+  const totalThuKinhDoanh = transactions
+    .filter((tx) => tx.type === "Thu" && tx.purpose === "Kinh doanh")
+    .reduce((sum, tx) => sum + tx.amount, 0);
+  const totalChiKinhDoanh = transactions
+    .filter((tx) => tx.type === "Chi" && tx.purpose === "Kinh doanh")
+    .reduce((sum, tx) => sum + tx.amount, 0);
+  const loiNhuanKinhDoanh = totalThuKinhDoanh - totalChiKinhDoanh;
+  const totalThuKhac = totalCredit - totalThuKinhDoanh;
+  const totalChiSinhHoat = transactions
+    .filter((tx) => tx.type === "Chi" && tx.purpose === "Sinh hoat")
+    .reduce((sum, tx) => sum + tx.amount, 0);
+  const totalChiKhac = totalDebit - totalChiKinhDoanh - totalChiSinhHoat;
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6 mb-6">
@@ -30,6 +42,18 @@ const FinancialSummary: React.FC<FinancialSummaryProps> = ({
         <SummaryCard title="Tổng thu nhập" amount={totalCredit} color="green" />
         <SummaryCard title="Tổng chi tiêu" amount={totalDebit} color="red" />
         <SummaryCard title="Số dư hiện tại" amount={balance} color="blue" />
+        <SummaryCard
+          title="Lợi nhuận Kinh doanh"
+          amount={loiNhuanKinhDoanh}
+          color="blue"
+        />
+        <SummaryCard title="Thu Khác" amount={totalThuKhac} color="green" />
+        <SummaryCard
+          title="Chi Sinh hoạt"
+          amount={totalChiSinhHoat}
+          color="red"
+        />
+        <SummaryCard title="Chi Khác" amount={totalChiKhac} color="orange" />
       </div>
     </div>
   );
