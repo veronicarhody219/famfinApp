@@ -24,3 +24,11 @@ export const formatDateToDDMMYYYY = (date: Date): string => {
   const year = date.getFullYear();
   return `${day}/${month}/${year}`;
 };
+
+// src/helpers/formatters.ts (thêm hàm này)
+export const normalizeString = (str: string): string => {
+  return str
+    .normalize("NFD") // Phân tách dấu
+    .replace(/[\u0300-\u036f]/g, "") // Xóa dấu
+    .toLowerCase(); // Chuyển thường để matching case-insensitive
+};

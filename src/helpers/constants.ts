@@ -48,6 +48,13 @@ export const CATEGORIES_BY_PURPOSE: { [key: string]: string[] } = {
   ],
 };
 
+// src/helpers/constants.ts (thêm ở cuối)
+export const PURPOSE_GROUPS = {
+  "Sinh hoat": ["Ăn uống", "Mua sắm", "Hóa đơn", "Giải trí", "Sức khỏe"],
+  "Kinh doanh": ["Kinh doanh"],
+  Khac: ["Khác"],
+};
+
 export const KEYWORD_MAP: KeywordMapping = {
   // Ăn uống
   starbucks: { purpose: "Ăn uống", category: "Cafe" },
