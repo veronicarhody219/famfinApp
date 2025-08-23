@@ -19,6 +19,7 @@ export const formatCurrency = (amount: number): string => {
  * @returns {string} Chuỗi ngày đã được định dạng.
  */
 export const formatDateToDDMMYYYY = (date: Date): string => {
+  if (isNaN(date.getTime())) return "N/A"; // Xử lý invalid date
   const day = String(date.getDate()).padStart(2, "0");
   const month = String(date.getMonth() + 1).padStart(2, "0");
   const year = date.getFullYear();

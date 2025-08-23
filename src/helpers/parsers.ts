@@ -323,3 +323,335 @@ export const parseSms = (smsText: string): Transaction[] => {
 
   return allTransactions;
 };
+// //2...............
+
+// import type { Transaction } from "../types";
+// import {
+//   CATEGORIES_BY_PURPOSE,
+//   KEYWORD_MAP,
+//   PURPOSES,
+//   TRANSACTION_TYPES,
+//   CHANNELS,
+//   MEMBERS,
+//   ACCOUNTS,
+// } from "./constants";
+
+// export const parseVcbSms = (smsText: string): Transaction[] => {
+//   const regex =
+//     /SD TK \d+ ([-+])([\d,]+(?:\.\d+)?)VND luc (\d{2}-\d{2}-\d{4}) \d{2}:\d{2}:\d{2}\.?\s*SD \d{1,3}(?:,\d{3})*(?:\.\d+)?VND\. Ref ([^\.]+)\.(.+?)(?=SD TK \d+|$)/gs;
+//   const transactions: Transaction[] = [];
+//   const matches = [...smsText.matchAll(regex)];
+
+//   for (const match of matches) {
+//     const type = match[1] === "+" ? "Thu" : "Chi";
+//     const amount = parseFloat(match[2].replace(/,/g, ""));
+//     const dateStr = match[3];
+//     const [day, month, year] = dateStr.split("-");
+//     const date = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+//     const descriptionBlock = match[5].trim();
+//     let cleanedDescription = descriptionBlock;
+
+//     const descriptionRegex =
+//       /(?:chuyen tien[^.]*|Thanh toan cho[^.]*|TOPUP Viettel[^.]*|[^.]*?)(?:\.CT tu|\.Vietcombank:|$)/i;
+//     const descriptionMatch = descriptionBlock.match(descriptionRegex);
+//     if (descriptionMatch) {
+//       cleanedDescription = descriptionMatch[0]
+//         .replace(/\.CT tu.*$|\.Vietcombank:.*$/, "")
+//         .trim();
+//     }
+
+//     if (!cleanedDescription) {
+//       cleanedDescription = "Giao dịch không rõ";
+//     }
+
+//     const { purpose, category, member } = getSmartCategory(
+//       cleanedDescription,
+//       type,
+//       amount
+//     );
+//     const channel = getSmartChannel(cleanedDescription);
+
+//     transactions.push({
+//       amount,
+//       type,
+//       description: cleanedDescription,
+//       date,
+//       account: ACCOUNTS[1], // "Tài khoản ngân hàng"
+//       purpose,
+//       category,
+//       member: member || MEMBERS[0], // "Chồng"
+//       channel,
+//       timestamp: new Date().toISOString(),
+//     });
+//   }
+
+//   return transactions;
+// };
+
+// export const parseVtbSms = (smsText: string): Transaction[] => {
+//   const regex =
+//     /VietinBank:(\d{2}\/\d{2}\/\d{4}).*?GD:([+-])([\d,]+(?:\.\d+)?)VND.*?ND:(.+?)(?=VietinBank:|$)/g;
+//   const transactions: Transaction[] = [];
+//   let match;
+
+//   while ((match = regex.exec(smsText)) !== null) {
+//     const dateStr = match[1];
+//     const [day, month, year] = dateStr.split("/");
+//     const date = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+//     const type = match[2] === "+" ? "Thu" : "Chi";
+//     const amount = parseFloat(match[3].replace(/,/g, ""));
+//     const description = match[4].trim();
+
+//     const { purpose, category, member } = getSmartCategory(
+//       description,
+//       type,
+//       amount
+//     );
+//     const channel = getSmartChannel(description);
+
+//     transactions.push({
+//       amount,
+//       type,
+//       description,
+//       date,
+//       account: ACCOUNTS[1], // "Tài khoản ngân hàng"
+//       purpose,
+//       category,
+//       member: member || MEMBERS[0], // "Chồng"
+//       channel,
+//       timestamp: new Date().toISOString(),
+//     });
+//   }
+//   return transactions;
+// };
+
+// export const parseBidvSms = (smsText: string): Transaction[] => {
+//   const regex =
+//     /TK\d+ tai BIDV ([+-])([\d,]+(?:\.\d+)?)VND vao \d{2}:\d{2} (\d{2}\/\d{2}\/\d{2,4})\.? So du:\d{1,3}(?:,\d{3})*(?:\.\d+)?VND\. ND: (.+?)(?=TK\d+ tai BIDV|$)/g;
+//   const transactions: Transaction[] = [];
+//   let match;
+
+//   while ((match = regex.exec(smsText)) !== null) {
+//     const type = match[1] === "+" ? "Thu" : "Chi";
+//     const amount = parseFloat(match[2].replace(/,/g, ""));
+//     const dateStr = match[3];
+//     const [day, month, year] = dateStr.split("/");
+//     const fullYear = year.length === 2 ? `20${year}` : year;
+//     const date = `${fullYear}-${month.padStart(2, "0")}-${day.padStart(
+//       2,
+//       "0"
+//     )}`;
+//     let cleanedDescription = match[4].trim();
+
+//     const patternsToRemove = [
+//       /MB-TKThe :[\d,]+, tai (Techcombank|Vietcombank)\.?/,
+//       /O@L_.*?-BIDV D/,
+//       /TKThe :[\d,]+, tai TCB\./,
+//       /FT\d+/,
+//       /REM Tfr Ac:[^ ]+/,
+//     ];
+
+//     patternsToRemove.forEach((pattern) => {
+//       cleanedDescription = cleanedDescription.replace(pattern, "").trim();
+//     });
+
+//     const { purpose, category, member } = getSmartCategory(
+//       cleanedDescription,
+//       type,
+//       amount
+//     );
+//     const channel = getSmartChannel(cleanedDescription);
+
+//     transactions.push({
+//       amount,
+//       type,
+//       description: cleanedDescription,
+//       date,
+//       account: ACCOUNTS[1], // "Tài khoản ngân hàng"
+//       purpose,
+//       category,
+//       member: member || MEMBERS[0], // "Chồng"
+//       channel,
+//       timestamp: new Date().toISOString(),
+//     });
+//   }
+
+//   return transactions;
+// };
+
+// export const parseMbSms = (smsText: string): Transaction[] => {
+//   const regex =
+//     /BIEN DONG SO DU\s*TK \d+:\s*([+-])(\d+(?:,\d+)?).*?\s*luc\s*(\d{2}:\d{2})\s*ngay\s*(\d{2}\/\d{2}\/\d{4}).*?Noi dung: (.+?)(?=BIEN DONG SO DU|$)/g;
+//   const transactions: Transaction[] = [];
+//   let match;
+
+//   while ((match = regex.exec(smsText)) !== null) {
+//     const type = match[1] === "+" ? "Thu" : "Chi";
+//     const amount = parseFloat(match[2].replace(/,/g, ""));
+//     const dateStr = match[4];
+//     const [day, month, year] = dateStr.split("/");
+//     const date = `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+//     const description = match[5].trim();
+
+//     const { purpose, category, member } = getSmartCategory(
+//       description,
+//       type,
+//       amount
+//     );
+//     const channel = getSmartChannel(description);
+
+//     transactions.push({
+//       amount,
+//       type,
+//       description,
+//       date,
+//       account: ACCOUNTS[1], // "Tài khoản ngân hàng"
+//       purpose,
+//       category,
+//       member: member || MEMBERS[0], // "Chồng"
+//       channel,
+//       timestamp: new Date().toISOString(),
+//     });
+//   }
+//   return transactions;
+// };
+
+// export const getSmartCategory = (
+//   description: string,
+//   type: "Thu" | "Chi",
+//   amount: number
+// ): { purpose: string; category: string; member: string | undefined } => {
+//   const lowerDesc = description.toLowerCase();
+
+//   for (const [keyword, mapping] of Object.entries(KEYWORD_MAP)) {
+//     if (lowerDesc.includes(keyword)) {
+//       return {
+//         purpose: mapping.purpose,
+//         category: mapping.category,
+//         member: mapping.member || MEMBERS[0],
+//       };
+//     }
+//   }
+
+//   let purpose = PURPOSES[0]; // "Sinh hoạt"
+//   let category = CATEGORIES_BY_PURPOSE[PURPOSES[0]][0]; // Default category
+//   let member = MEMBERS[0]; // "Chồng"
+
+//   if (type === "Thu") {
+//     purpose = "Thu nhập";
+//     if (amount < 3000000) {
+//       category = "Bán vật tư";
+//     } else if (amount < 10000000) {
+//       category = "Bảo dưỡng, sửa chữa máy";
+//     } else {
+//       category = "Bán máy";
+//     }
+//   } else {
+//     purpose = "Sinh hoạt";
+//     if (amount < 400000) {
+//       category = "Đồ ăn vặt";
+//     } else {
+//       category = "Vật tư";
+//     }
+//   }
+
+//   return { purpose, category, member };
+// };
+
+// export const getSmartChannel = (description: string): string => {
+//   const lowerDesc = description.toLowerCase();
+
+//   if (
+//     lowerDesc.includes("thanh toan") ||
+//     lowerDesc.includes("shopee") ||
+//     lowerDesc.includes("lazada") ||
+//     lowerDesc.includes("shopeepay") ||
+//     lowerDesc.includes("qr pay") ||
+//     lowerDesc.includes("zalopay")
+//   ) {
+//     return CHANNELS[4]; // "Online"
+//   } else if (lowerDesc.includes("rut tien") || lowerDesc.includes("atm")) {
+//     return CHANNELS[3]; // "Rút tiền"
+//   } else if (
+//     lowerDesc.includes("chợ") ||
+//     lowerDesc.includes("sieuthi") ||
+//     lowerDesc.includes("go market")
+//   ) {
+//     return CHANNELS[2]; // "Siêu thị"
+//   } else if (lowerDesc.includes("phi thuong nien")) {
+//     return CHANNELS[5]; // "Phí thẻ"
+//   }
+//   return CHANNELS[1]; // "Chuyển khoản"
+// };
+
+// export const parseSms = (smsText: string): Transaction[] => {
+//   const lowerCaseSms = smsText.toLowerCase().replace(/\s+/g, " ").trim();
+//   let allTransactions: Transaction[] = [];
+
+//   const segments = lowerCaseSms.split(
+//     /(?=sd tk \d+|vietinbank|tk\d+ tai bidv|bien dong so du)/
+//   );
+//   const parsers = [
+//     { pattern: /sd tk \d+/, parser: parseVcbSms },
+//     { pattern: /vietinbank/, parser: parseVtbSms },
+//     { pattern: /tk\d+ tai bidv/, parser: parseBidvSms },
+//     { pattern: /bien dong so du/, parser: parseMbSms },
+//   ];
+
+//   for (const segment of segments) {
+//     if (segment.trim() === "") continue;
+//     for (const { pattern, parser } of parsers) {
+//       if (pattern.test(segment)) {
+//         const results = parser(segment);
+//         if (results) {
+//           allTransactions.push(...results);
+//         }
+//         break;
+//       }
+//     }
+//   }
+
+//   if (allTransactions.length === 0) {
+//     const amountMatch = lowerCaseSms.match(
+//       /([+-]\d{1,3}(?:,\d{3})*(?:\.\d+)?)/
+//     );
+//     if (amountMatch) {
+//       const amount = parseFloat(
+//         amountMatch[0].replace(/[^0-9,-]/g, "").replace(",", ".")
+//       );
+//       const type = amountMatch[0].startsWith("+") ? "Thu" : "Chi";
+//       const { purpose, category, member } = getSmartCategory(
+//         lowerCaseSms,
+//         type,
+//         Math.abs(amount)
+//       );
+//       const channel = getSmartChannel(lowerCaseSms);
+
+//       allTransactions.push({
+//         amount: Math.abs(amount),
+//         type,
+//         description: smsText,
+//         date: new Date().toISOString().slice(0, 10),
+//         account: ACCOUNTS[1],
+//         purpose,
+//         category,
+//         member: member || MEMBERS[0],
+//         channel,
+//         timestamp: new Date().toISOString(),
+//       });
+//     }
+//   }
+
+//   allTransactions.sort(
+//     (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+//   );
+
+//   if (allTransactions.length > 100) {
+//     console.warn(
+//       "Cảnh báo: Số lượng giao dịch vượt quá 100, chỉ lấy 100 giao dịch đầu."
+//     );
+//     allTransactions = allTransactions.slice(0, 100);
+//   }
+
+//   return allTransactions;
+// };

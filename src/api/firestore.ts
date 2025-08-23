@@ -1,16 +1,3 @@
-// src/api/firestore.ts
-// import {
-//   doc,
-//   deleteDoc,
-//   updateDoc,
-//   type DocumentData,
-//   collection,
-//   addDoc,
-//   serverTimestamp,
-// } from "firebase/firestore";
-// import { db, appId } from "../firebase/config";
-// import type { Transaction } from "../types";
-
 import {
   collection,
   addDoc,
@@ -19,7 +6,7 @@ import {
   doc,
   onSnapshot,
   query,
-  type DocumentData,
+  // type DocumentData,
   serverTimestamp,
 } from "firebase/firestore";
 import { db, appId } from "../firebase/config";
@@ -37,22 +24,37 @@ const getCollectionPath = (userId: string) => {
  * @param updatedData Dữ liệu mới của giao dịch.
  * @returns Promise<void>
  */
+// export const updateTransaction = async (
+//   transactionId: string,
+//   userId: string,
+//   updatedData: Transaction
+// ): Promise<void> => {
+//   const dataToSend = {
+//     ...updatedData,
+//     date: new Date(updatedData.date),
+//   };
+
+//   const docRef = doc(
+//     db,
+//     `artifacts/${appId}/users/${userId}/transactions`,
+//     transactionId
+//   );
+//   await updateDoc(docRef, dataToSend as DocumentData);
+// };
 export const updateTransaction = async (
   transactionId: string,
   userId: string,
-  updatedData: Transaction
-): Promise<void> => {
-  const dataToSend = {
-    ...updatedData,
-    date: new Date(updatedData.date),
-  };
-
-  const docRef = doc(
+  data: Transaction
+) => {
+  const transactionRef = doc(
     db,
-    `artifacts/${appId}/users/${userId}/transactions`,
-    transactionId
+    `artifacts/${appId}/users/${userId}/transactions/${transactionId}`
   );
-  await updateDoc(docRef, dataToSend as DocumentData);
+  await updateDoc(transactionRef, {
+    ...data,
+    date: data.date,
+    timestamp: serverTimestamp(), // Cập nhật timestamp khi sửa
+  });
 };
 
 /**
@@ -79,30 +81,49 @@ export const deleteTransaction = async (
  * @param userId ID người dùng.
  * @returns Promise<void>.
  */
+// export const addTransactions = async (
+//   transactions: Transaction[],
+//   userId: string
+// ): Promise<void> => {
+//   if (!userId) {
+//     throw new Error("User ID is required to add transactions.");
+//   }
+
+//   const transactionsCollectionRef = collection(
+//     db,
+//     `artifacts/${appId}/users/${userId}/transactions`
+//   );
+
+//   await Promise.all(
+//     transactions.map((transaction) =>
+//       addDoc(transactionsCollectionRef, {
+//         ...transaction,
+//         date: new Date(transaction.date),
+//         timestamp: serverTimestamp(),
+//       })
+//     )
+//   );
+// };
+
 export const addTransactions = async (
   transactions: Transaction[],
   userId: string
-): Promise<void> => {
-  if (!userId) {
-    throw new Error("User ID is required to add transactions.");
-  }
-
-  const transactionsCollectionRef = collection(
+) => {
+  const transactionsRef = collection(
     db,
     `artifacts/${appId}/users/${userId}/transactions`
   );
 
-  await Promise.all(
-    transactions.map((transaction) =>
-      addDoc(transactionsCollectionRef, {
-        ...transaction,
-        date: new Date(transaction.date),
-        timestamp: serverTimestamp(),
-      })
-    )
+  const promises = transactions.map((tx) =>
+    addDoc(transactionsRef, {
+      ...tx,
+      date: tx.date || new Date().toISOString().slice(0, 10), // Đảm bảo date luôn hợp lệ
+      timestamp: serverTimestamp(),
+    })
   );
-};
 
+  await Promise.all(promises);
+};
 /**
  * Lắng nghe các thay đổi trong bộ sưu tập giao dịch của người dùng.
  * @param userId ID của người dùng hiện tại.

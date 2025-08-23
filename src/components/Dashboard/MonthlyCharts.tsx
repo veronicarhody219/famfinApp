@@ -1,4 +1,3 @@
-// src/components/Dashboard/MonthlyCharts.tsx
 import React from "react";
 import {
   ResponsiveContainer,
@@ -10,15 +9,28 @@ import {
   Legend,
   LineChart,
   Line,
+  PieChart,
+  Pie,
+  Cell,
 } from "recharts";
+import {
+  getFinancialSummary,
+  getMonthlyTrend,
+  getComparisonData,
+} from "../../helpers/financialOverview";
 import { formatCurrency } from "../../helpers/formatters";
-import type { CustomTooltip, MonthlyData } from "../../types";
+import type { Transaction, CustomTooltip } from "../../types";
 
 interface MonthlyChartsProps {
-  monthlyTrend: MonthlyData[];
+  transactions: Transaction[];
+  year?: number;
+  month?: number;
+  comparisonPeriod1: string;
+  comparisonPeriod2: string;
 }
 
-// Hàm render tooltip tùy chỉnh cho biểu đồ
+const COLORS = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0"];
+
 const renderCustomTooltip = ({ active, payload, label }: CustomTooltip) => {
   if (active && payload && payload.length) {
     return (
@@ -32,7 +44,9 @@ const renderCustomTooltip = ({ active, payload, label }: CustomTooltip) => {
                 ? "text-green-600"
                 : entry.name === "Chi"
                 ? "text-red-600"
-                : "text-blue-600"
+                : entry.name === "Lợi nhuận"
+                ? "text-blue-600"
+                : "text-gray-600"
             }`}
           >
             {`${entry.name}: ${formatCurrency(entry.value)}`}
@@ -44,12 +58,68 @@ const renderCustomTooltip = ({ active, payload, label }: CustomTooltip) => {
   return null;
 };
 
-const MonthlyCharts: React.FC<MonthlyChartsProps> = ({ monthlyTrend }) => {
+const MonthlyCharts: React.FC<MonthlyChartsProps> = ({
+  transactions,
+  year,
+  month,
+  comparisonPeriod1,
+  comparisonPeriod2,
+}) => {
+  const monthlyTrend = getMonthlyTrend(transactions, year);
+  const comparisonData = getComparisonData(
+    transactions,
+    comparisonPeriod1,
+    comparisonPeriod2
+  ).map((d) => ({
+    period: d.period,
+    thu: d.income,
+    chi: d.expense,
+    loiNhuan: d.profit,
+  }));
+  const expenseByPurpose = getFinancialSummary(
+    transactions,
+    year,
+    month
+  ).expenseByPurpose;
+  const pieData = Object.entries(expenseByPurpose).map(([name, value]) => ({
+    name,
+    value,
+  }));
+
   return (
     <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
       <h2 className="text-2xl font-bold text-slate-700 mb-6">
-        Biểu đồ xu hướng thu chi hàng tháng
+        Biểu đồ tài chính
       </h2>
+      <div className="mb-8">
+        <h3 className="text-xl font-semibold text-slate-600 mb-4">
+          Tỷ trọng chi phí
+        </h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <PieChart>
+            <Pie
+              data={pieData}
+              dataKey="value"
+              nameKey="name"
+              cx="50%"
+              cy="50%"
+              outerRadius={80}
+              label={({ name, percent }) =>
+                `${name}: ${percent ? (percent * 100).toFixed(0) : 0}%`
+              }
+            >
+              {pieData.map((_, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={COLORS[index % COLORS.length]}
+                />
+              ))}
+            </Pie>
+            <Tooltip content={renderCustomTooltip} />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
+      </div>
       <div className="mb-8">
         <h3 className="text-xl font-semibold text-slate-600 mb-4">
           Thu nhập và Chi tiêu
@@ -84,6 +154,22 @@ const MonthlyCharts: React.FC<MonthlyChartsProps> = ({ monthlyTrend }) => {
               activeDot={{ r: 8 }}
             />
           </LineChart>
+        </ResponsiveContainer>
+      </div>
+      <div>
+        <h3 className="text-xl font-semibold text-slate-600 mb-4">
+          So sánh {comparisonPeriod1} vs {comparisonPeriod2}
+        </h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <BarChart data={comparisonData}>
+            <XAxis dataKey="period" />
+            <YAxis tickFormatter={(value) => formatCurrency(value)} />
+            <Tooltip content={renderCustomTooltip} />
+            <Legend />
+            <Bar dataKey="thu" name="Thu" fill="#4ade80" />
+            <Bar dataKey="chi" name="Chi" fill="#f87171" />
+            <Bar dataKey="loiNhuan" name="Lợi nhuận" fill="#3b82f6" />
+          </BarChart>
         </ResponsiveContainer>
       </div>
     </div>

@@ -2,7 +2,6 @@ import React from "react";
 import {
   HomeIcon,
   ChartBarIcon,
-  PlusIcon,
   ListBulletIcon,
 } from "@heroicons/react/24/solid";
 

@@ -1,7 +1,5 @@
 // src/types/index.ts
 
-import type { Timestamp } from "firebase/firestore";
-
 // Định nghĩa kiểu dữ liệu cho một Giao dịch.
 export interface Transaction {
   id?: string;
@@ -14,7 +12,7 @@ export interface Transaction {
   category: string;
   member: string;
   channel: string;
-  timestamp?: Timestamp; // Thêm trường timestamp để đồng bộ với Firestore
+  timestamp?: string; // Thêm trường timestamp để đồng bộ với Firestore
 }
 
 // Kiểu dữ liệu cho các phần tử form HTML.
@@ -45,4 +43,18 @@ export interface CustomTooltip {
 export interface CategorizedData {
   name: string;
   value: number;
+}
+
+export interface FinancialSummary {
+  totalIncome: number;
+  totalExpense: number;
+  profit: number;
+  expenseByPurpose: { [key: string]: number };
+}
+
+export interface ComparisonData {
+  period: string; // Format: "YYYY-MM" or "YYYY"
+  income: number;
+  expense: number;
+  profit: number;
 }
