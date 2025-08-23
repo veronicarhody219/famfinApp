@@ -22,8 +22,34 @@ export const getFinancialSummary = (
     .filter((t) => t.type === TRANSACTION_TYPES[0])
     .reduce((sum, t) => sum + t.amount, 0);
 
+  const businessIncome = filteredTransactions
+    .filter(
+      (t) => t.type === TRANSACTION_TYPES[0] && t.purpose === "Kinh doanh"
+    )
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const otherIncome = filteredTransactions
+    .filter(
+      (t) => t.type === TRANSACTION_TYPES[0] && t.purpose !== "Kinh doanh"
+    )
+    .reduce((sum, t) => sum + t.amount, 0);
+
   const totalExpense = filteredTransactions
     .filter((t) => t.type === TRANSACTION_TYPES[1])
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const businessExpense = filteredTransactions
+    .filter(
+      (t) => t.type === TRANSACTION_TYPES[1] && t.purpose === "Kinh doanh"
+    )
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const livingExpense = filteredTransactions
+    .filter((t) => t.type === TRANSACTION_TYPES[1] && t.purpose === "Sinh hoạt")
+    .reduce((sum, t) => sum + t.amount, 0);
+
+  const otherExpense = filteredTransactions
+    .filter((t) => t.type === TRANSACTION_TYPES[1] && t.purpose === "Khác")
     .reduce((sum, t) => sum + t.amount, 0);
 
   const expenseByPurpose = filteredTransactions
@@ -35,8 +61,14 @@ export const getFinancialSummary = (
 
   return {
     totalIncome,
+    businessIncome,
+    otherIncome,
     totalExpense,
-    profit: totalIncome - totalExpense,
+    businessExpense,
+    livingExpense,
+    otherExpense,
+    businessProfit: businessIncome - businessExpense,
+    netIncome: totalIncome - totalExpense,
     expenseByPurpose,
   };
 };
@@ -71,13 +103,13 @@ export const getMonthlyTrend = (
       chi: data.chi,
       loiNhuan: data.thu - data.chi,
     }))
-    .sort((a, b) => a.month.localeCompare(b.month)); // Ascending order
+    .sort((a, b) => a.month.localeCompare(b.month));
 };
 
 export const getComparisonData = (
   transactions: Transaction[],
-  period1: string,
-  period2: string
+  period1: string, // Format: yyyy-mm
+  period2: string // Format: yyyy-mm
 ): ComparisonData[] => {
   const isMonthly = period1.includes("-");
   const getPeriodKey = (date: string) => {

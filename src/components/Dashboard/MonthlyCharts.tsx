@@ -30,17 +30,23 @@ interface MonthlyChartsProps {
   transactions: Transaction[];
   year?: number;
   month?: number;
-  comparisonPeriod1: string;
-  comparisonPeriod2: string;
+  comparisonPeriod1: string; // Format: dd/mm/yyyy
+  comparisonPeriod2: string; // Format: dd/mm/yyyy
 }
 
 const COLORS = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0"];
 
-const renderCustomTooltip = ({ active, payload, label }: CustomTooltip) => {
+const renderCustomTooltip = (
+  { active, payload, label }: CustomTooltip,
+  month?: number,
+  year?: number
+) => {
   if (active && payload && payload.length) {
+    const periodLabel =
+      month && year ? `Tháng ${month}/${year}` : "Tổng các tháng";
     return (
       <div className="p-4 bg-white shadow-lg rounded-md border border-slate-200">
-        <p className="font-bold text-slate-700">{`Tháng: ${label}`}</p>
+        <p className="font-bold text-slate-700">{periodLabel}</p>
         {payload.map((entry, index) => (
           <p
             key={`tooltip-${index}`}
@@ -111,7 +117,9 @@ const MonthlyCharts: React.FC<MonthlyChartsProps> = ({
                 />
               ))}
             </Pie>
-            <Tooltip content={renderCustomTooltip} />
+            <Tooltip
+              content={(props) => renderCustomTooltip(props, month, year)}
+            />
             <Legend />
           </PieChart>
         </ResponsiveContainer>

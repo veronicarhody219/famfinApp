@@ -1,55 +1,44 @@
-// src/types/index.ts
-
-// Định nghĩa kiểu dữ liệu cho một Giao dịch.
 export interface Transaction {
   id?: string;
   amount: number;
   type: "Thu" | "Chi";
   description: string;
-  date: string;
+  date: string; // Format: "YYYY-MM-DD"
   account: string;
   purpose: string;
   category: string;
   member: string;
   channel: string;
-  timestamp?: string; // Thêm trường timestamp để đồng bộ với Firestore
+  timestamp?: string;
 }
 
-// Kiểu dữ liệu cho các phần tử form HTML.
 export type FormElement =
   | HTMLInputElement
   | HTMLSelectElement
   | HTMLTextAreaElement;
 
-// Kiểu dữ liệu mới cho keywordMap để khắc phục lỗi TS7053
 export interface KeywordMapping {
   [key: string]: { purpose: string; category: string; member?: string };
 }
 
+export interface FinancialSummary {
+  totalIncome: number; // Tổng Thu
+  businessIncome: number; // Thu Kinh doanh
+  otherIncome: number; // Thu Khác
+  totalExpense: number; // Tổng Chi
+  businessExpense: number; // Chi Kinh doanh
+  livingExpense: number; // Chi Sinh hoạt
+  otherExpense: number; // Chi Khác
+  businessProfit: number; // Lợi nhuận Kinh doanh
+  netIncome: number; // Thu nhập Thuần
+  expenseByPurpose: { [key: string]: number };
+}
+
 export interface MonthlyData {
-  month: string;
+  month: string; // Format: "YYYY-MM"
   thu: number;
   chi: number;
   loiNhuan: number;
-}
-
-// Định nghĩa kiểu cho Recharts Tooltip
-export interface CustomTooltip {
-  active?: boolean;
-  payload?: any[];
-  label?: string | number;
-}
-
-export interface CategorizedData {
-  name: string;
-  value: number;
-}
-
-export interface FinancialSummary {
-  totalIncome: number;
-  totalExpense: number;
-  profit: number;
-  expenseByPurpose: { [key: string]: number };
 }
 
 export interface ComparisonData {
@@ -57,4 +46,15 @@ export interface ComparisonData {
   income: number;
   expense: number;
   profit: number;
+}
+
+export interface CustomTooltip {
+  active?: boolean;
+  payload?: Array<{ name: string; value: number }>;
+  label?: string | number;
+}
+
+export interface CategorizedData {
+  name: string;
+  value: number;
 }

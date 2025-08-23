@@ -207,10 +207,7 @@ function App() {
           <TabView activeTab={activeTab} setActiveTab={setActiveTab} />{" "}
           {/* Thêm TabView */}
           {activeTab === "dashboard" && (
-            <DashboardPage
-              transactions={allTransactions}
-              monthlyTrend={monthlyTrend}
-            />
+            <DashboardPage transactions={allTransactions} />
           )}
           {activeTab === "reports" && (
             <ReportsPage transactions={allTransactions} />

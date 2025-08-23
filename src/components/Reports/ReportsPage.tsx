@@ -1,5 +1,12 @@
 import React, { useState, useMemo } from "react";
-import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import * as XLSX from "xlsx";
@@ -23,29 +30,6 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ transactions }) => {
       return true;
     });
   }, [transactions, startDate, endDate]);
-
-  // const getSpendingByCategory = (
-  //   purposeGroup?: string
-  // ): { name: string; value: number }[] => {
-  //   const spendingData: { [key: string]: number } = {};
-  //   const groupPurposes = purposeGroup
-  //     ? PURPOSE_GROUPS[purposeGroup] || []
-  //     : []; // Sử dụng PURPOSE_GROUPS từ constants.ts
-
-  //   filteredTransactions
-  //     .filter(
-  //       (t) =>
-  //         t.type === "Chi" &&
-  //         (groupPurposes.length === 0 || groupPurposes.includes(t.purpose))
-  //     )
-  //     .forEach((t) => {
-  //       spendingData[t.category] = (spendingData[t.category] || 0) + t.amount;
-  //     });
-  //   return Object.keys(spendingData).map((key) => ({
-  //     name: key,
-  //     value: spendingData[key],
-  //   }));
-  // };
 
   const getSpendingByCategory = (
     purposeGroup?: string
@@ -82,10 +66,6 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ transactions }) => {
       value: spendingData[key],
     }));
   };
-
-  // const dataSinhHoat = getSpendingByCategory("Sinh hoat");
-  // const dataKinhDoanh = getSpendingByCategory("Kinh doanh");
-  // const dataKhac = getSpendingByCategory("Khac");
 
   const dataSinhHoat = getSpendingByCategory("Sinh hoạt");
   const dataKinhDoanh = getSpendingByCategory("Kinh doanh");
@@ -133,28 +113,30 @@ const ReportsPage: React.FC<ReportsPageProps> = ({ transactions }) => {
     }
     return (
       <div className="flex justify-center">
-        <PieChart width={500} height={400}>
-          <Pie
-            data={data}
-            cx="50%"
-            cy="50%"
-            outerRadius={150}
-            fill="#8884d8"
-            dataKey="value"
-            label={({ name, percent }) =>
-              `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`
-            }
-          >
-            {data.map((_, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={COLORS[index % COLORS.length]}
-              />
-            ))}
-          </Pie>
-          <Tooltip formatter={(value: number) => formatCurrency(value)} />
-          <Legend />
-        </PieChart>
+        <ResponsiveContainer width="100%" height={400}>
+          <PieChart>
+            <Pie
+              data={data}
+              cx="50%"
+              cy="50%"
+              outerRadius={150}
+              fill="#8884d8"
+              dataKey="value"
+              label={({ name, percent }) =>
+                `${name}: ${((percent ?? 0) * 100).toFixed(0)}%`
+              }
+            >
+              {data.map((_, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={COLORS[index % COLORS.length]}
+                />
+              ))}
+            </Pie>
+            <Tooltip formatter={(value: number) => formatCurrency(value)} />
+            <Legend />
+          </PieChart>
+        </ResponsiveContainer>
       </div>
     );
   };

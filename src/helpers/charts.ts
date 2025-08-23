@@ -36,16 +36,21 @@ export const getMonthlyTrendChart = (
 
 export const getComparisonChart = (
   transactions: Transaction[],
-  period1: string,
-  period2: string
+  period1: string, // Format: dd/mm/yyyy
+  period2: string // Format: dd/mm/yyyy
 ): MonthlyData[] => {
+  const parsePeriod = (period: string): string => {
+    const [day, month, year] = period.split("/").map(Number);
+    if (!day || !month || !year) return period; // Fallback to original if invalid
+    return `${year}-${month.toString().padStart(2, "0")}`;
+  };
   const comparison: ComparisonData[] = getComparisonData(
     transactions,
-    period1,
-    period2
+    parsePeriod(period1),
+    parsePeriod(period2)
   );
   return comparison.map((c) => ({
-    month: c.period,
+    month: c.period, // Use period as month for display
     thu: c.income,
     chi: c.expense,
     loiNhuan: c.profit,
