@@ -4,7 +4,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import * as XLSX from "xlsx";
 import type { Transaction } from "../../types";
-import { formatCurrency, formatDateToDDMMYYYY } from "../../helpers/formatters"; // Giả sử bạn đã thêm normalizeString vào formatters.ts
+import { formatCurrency, formatDateToDDMMYYYY } from "../../helpers/formatters";
 import { PURPOSE_GROUPS } from "../../helpers/constants";
 
 interface ReportsPageProps {

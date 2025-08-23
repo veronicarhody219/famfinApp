@@ -24,7 +24,9 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ transactions }) => {
 
   return (
     <div style={{ padding: "20px" }}>
-      <h1>Tổng quan tài chính</h1>
+      <h2 className="text-3xl font-bold text-gray-800 mb-4">
+        Tổng quan tài chính
+      </h2>
       <div style={{ marginBottom: "20px" }}>
         <label>Chọn năm: </label>
         <select

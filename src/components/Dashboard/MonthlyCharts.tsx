@@ -14,12 +14,17 @@ import {
   Cell,
 } from "recharts";
 import {
-  getFinancialSummary,
-  getMonthlyTrend,
-  getComparisonData,
-} from "../../helpers/financialOverview";
+  getExpenseByPurposeChart,
+  getMonthlyTrendChart,
+  getComparisonChart,
+} from "../../helpers/charts";
 import { formatCurrency } from "../../helpers/formatters";
-import type { Transaction, CustomTooltip } from "../../types";
+import type {
+  Transaction,
+  MonthlyData,
+  CategorizedData,
+  CustomTooltip,
+} from "../../types";
 
 interface MonthlyChartsProps {
   transactions: Transaction[];
@@ -65,26 +70,17 @@ const MonthlyCharts: React.FC<MonthlyChartsProps> = ({
   comparisonPeriod1,
   comparisonPeriod2,
 }) => {
-  const monthlyTrend = getMonthlyTrend(transactions, year);
-  const comparisonData = getComparisonData(
-    transactions,
-    comparisonPeriod1,
-    comparisonPeriod2
-  ).map((d) => ({
-    period: d.period,
-    thu: d.income,
-    chi: d.expense,
-    loiNhuan: d.profit,
-  }));
-  const expenseByPurpose = getFinancialSummary(
+  const expenseByPurpose: CategorizedData[] = getExpenseByPurposeChart(
     transactions,
     year,
     month
-  ).expenseByPurpose;
-  const pieData = Object.entries(expenseByPurpose).map(([name, value]) => ({
-    name,
-    value,
-  }));
+  );
+  const monthlyTrend: MonthlyData[] = getMonthlyTrendChart(transactions, year);
+  const comparisonData: MonthlyData[] = getComparisonChart(
+    transactions,
+    comparisonPeriod1,
+    comparisonPeriod2
+  );
 
   return (
     <div className="bg-white rounded-xl shadow-lg p-6 mb-8">
@@ -98,7 +94,7 @@ const MonthlyCharts: React.FC<MonthlyChartsProps> = ({
         <ResponsiveContainer width="100%" height={300}>
           <PieChart>
             <Pie
-              data={pieData}
+              data={expenseByPurpose}
               dataKey="value"
               nameKey="name"
               cx="50%"
@@ -108,7 +104,7 @@ const MonthlyCharts: React.FC<MonthlyChartsProps> = ({
                 `${name}: ${percent ? (percent * 100).toFixed(0) : 0}%`
               }
             >
-              {pieData.map((_, index) => (
+              {expenseByPurpose.map((_, index) => (
                 <Cell
                   key={`cell-${index}`}
                   fill={COLORS[index % COLORS.length]}
@@ -162,7 +158,7 @@ const MonthlyCharts: React.FC<MonthlyChartsProps> = ({
         </h3>
         <ResponsiveContainer width="100%" height={300}>
           <BarChart data={comparisonData}>
-            <XAxis dataKey="period" />
+            <XAxis dataKey="month" />
             <YAxis tickFormatter={(value) => formatCurrency(value)} />
             <Tooltip content={renderCustomTooltip} />
             <Legend />
