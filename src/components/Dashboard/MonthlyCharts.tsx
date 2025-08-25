@@ -37,7 +37,7 @@ interface MonthlyChartsProps {
 const COLORS = ["#FF6384", "#36A2EB", "#FFCE56", "#4BC0C0"];
 
 const renderCustomTooltip = (
-  { active, payload, label }: CustomTooltip,
+  { active, payload }: CustomTooltip,
   month?: number,
   year?: number
 ) => {
