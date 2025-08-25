@@ -3,6 +3,19 @@ import type { Transaction } from "../types";
 import { CATEGORIES_BY_PURPOSE, KEYWORD_MAP, PURPOSES } from "./constants";
 import { getCategoryRules } from "../api/firestore";
 import { normalizeString } from "./formatters";
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
+const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+if (!apiKey) {
+  console.warn(
+    "Gemini API key is not configured. Client-side parsing may fail."
+  );
+}
+
+const genAI = apiKey ? new GoogleGenerativeAI(apiKey) : null;
+const model = genAI
+  ? genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
+  : null;
 
 export const parseVcbSms = async (
   smsText: string,
@@ -212,22 +225,42 @@ export const parseWithGemini = async (
   smsText: string,
   userId?: string
 ): Promise<Transaction[] | null> => {
-  const url =
-    "https://us-central1-familyfinanceapp2025.cloudfunctions.net/parseSms";
+  if (!model || !apiKey) {
+    console.error(
+      "Gemini API is not available. Ensure VITE_GEMINI_API_KEY is set."
+    );
+    return null;
+  }
+
+  const prompt = `
+    Parse the following bank SMS and extract transaction details in JSON format:
+    - amount: number (in VND, remove commas)
+    - date: string (format: YYYY-MM-DD)
+    - type: "Thu" or "Chi"
+    - description: string
+    - bank: string (e.g., "Vietcombank", "Vietinbank")
+    - channel: string (e.g., "Online", "Siêu thị", "Chuyển khoản")
+    SMS: "${smsText}"
+    Return an array of transactions in JSON format. Example:
+    [
+      {
+        "amount": 500000,
+        "date": "2025-08-23",
+        "type": "Thu",
+        "description": "Mua hang tai Shopee",
+        "bank": "Vietcombank",
+        "channel": "Online"
+      }
+    ]
+  `;
+
   try {
-    const response = await fetch(url, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ smsText, userId }),
-    });
-
-    if (!response.ok) {
-      throw new Error(`Backend error: ${response.statusText}`);
-    }
-
-    const transactions: Transaction[] = await response.json();
+    const result = await model.generateContent(prompt);
+    const responseText = result.response.text();
+    const jsonMatch = responseText.match(/```json\n([\s\S]*?)\n```/);
+    const transactions: Transaction[] = jsonMatch
+      ? JSON.parse(jsonMatch[1])
+      : JSON.parse(responseText);
 
     for (const tx of transactions) {
       const { purpose, category, member } = await getSmartCategory(
@@ -245,7 +278,7 @@ export const parseWithGemini = async (
 
     return transactions.length > 0 ? transactions : null;
   } catch (error) {
-    console.error("Error parsing SMS with backend:", error);
+    console.error("Error parsing SMS with Gemini API:", error);
     return null;
   }
 };

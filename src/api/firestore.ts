@@ -113,6 +113,10 @@ export const subscribeToTransactions = (
           date: (data.date as any).toDate().toISOString().split("T")[0],
         });
       });
+      // Sort by date descending (recent first)
+      fetchedTransactions.sort(
+        (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+      );
       onUpdateCallback(fetchedTransactions);
     },
     (error) => {

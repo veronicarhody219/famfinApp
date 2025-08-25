@@ -122,16 +122,20 @@ const TransactionList: React.FC<TransactionListProps> = ({
     setTransactionToDelete(null);
   };
 
-  const filteredTransactions = transactions.filter(
-    (tx) =>
-      (tx.description || "").toLowerCase().includes(filterTerm.toLowerCase()) ||
-      tx.amount.toString().includes(filterTerm) ||
-      tx.type.toLowerCase().includes(filterTerm.toLowerCase()) ||
-      (tx.purpose || "").toLowerCase().includes(filterTerm.toLowerCase()) ||
-      (tx.category || "").toLowerCase().includes(filterTerm.toLowerCase()) ||
-      (tx.member || "").toLowerCase().includes(filterTerm.toLowerCase()) ||
-      (tx.channel || "").toLowerCase().includes(filterTerm.toLowerCase())
-  );
+  const filteredTransactions = transactions
+    .filter(
+      (tx) =>
+        (tx.description || "")
+          .toLowerCase()
+          .includes(filterTerm.toLowerCase()) ||
+        tx.amount.toString().includes(filterTerm) ||
+        tx.type.toLowerCase().includes(filterTerm.toLowerCase()) ||
+        (tx.purpose || "").toLowerCase().includes(filterTerm.toLowerCase()) ||
+        (tx.category || "").toLowerCase().includes(filterTerm.toLowerCase()) ||
+        (tx.member || "").toLowerCase().includes(filterTerm.toLowerCase()) ||
+        (tx.channel || "").toLowerCase().includes(filterTerm.toLowerCase())
+    )
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Add sorting here for filtered list
 
   return (
     <div className="my-6">
