@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect } from "react";
 import { collection, onSnapshot } from "firebase/firestore";
 import DashboardPage from "./components/Dashboard/DashboardPage";
 import TransactionPage from "./components/Transactions/TransactionPage";
@@ -6,36 +6,36 @@ import ReportsPage from "./components/Reports/ReportsPage"; // Import mới cho 
 import TabView from "./components/Shared/TabView"; // Import TabView
 import Login from "./components/Login";
 import { db, auth, appId } from "./firebase/config";
-import type { Transaction, MonthlyData } from "./types";
+import type { Transaction } from "./types";
 
 // Hàm tính toán dữ liệu hàng tháng (giữ nguyên)
-const calculateMonthlyTrend = (transactions: Transaction[]): MonthlyData[] => {
-  const monthlyData: { [key: string]: MonthlyData } = {};
+// const calculateMonthlyTrend = (transactions: Transaction[]): MonthlyData[] => {
+//   const monthlyData: { [key: string]: MonthlyData } = {};
 
-  transactions.forEach((transaction) => {
-    const date = new Date(transaction.date);
-    const month = date.toLocaleString("vi-VN", {
-      month: "long",
-      year: "numeric",
-    });
-    const amount = transaction.amount;
-    const type = transaction.type.toLowerCase();
+//   transactions.forEach((transaction) => {
+//     const date = new Date(transaction.date);
+//     const month = date.toLocaleString("vi-VN", {
+//       month: "long",
+//       year: "numeric",
+//     });
+//     const amount = transaction.amount;
+//     const type = transaction.type.toLowerCase();
 
-    if (!monthlyData[month]) {
-      monthlyData[month] = { month, thu: 0, chi: 0, loiNhuan: 0 };
-    }
+//     if (!monthlyData[month]) {
+//       monthlyData[month] = { month, thu: 0, chi: 0, loiNhuan: 0 };
+//     }
 
-    if (type === "thu") {
-      monthlyData[month].thu += amount;
-      monthlyData[month].loiNhuan += amount;
-    } else {
-      monthlyData[month].chi += amount;
-      monthlyData[month].loiNhuan -= amount;
-    }
-  });
+//     if (type === "thu") {
+//       monthlyData[month].thu += amount;
+//       monthlyData[month].loiNhuan += amount;
+//     } else {
+//       monthlyData[month].chi += amount;
+//       monthlyData[month].loiNhuan -= amount;
+//     }
+//   });
 
-  return Object.values(monthlyData);
-};
+//   return Object.values(monthlyData);
+// };
 
 function App() {
   // --- STATE ---
@@ -165,10 +165,10 @@ function App() {
   }, [userId]);
 
   // Sử dụng useMemo để tính toán monthlyTrend
-  const monthlyTrend = useMemo(
-    () => calculateMonthlyTrend(allTransactions),
-    [allTransactions]
-  );
+  // const monthlyTrend = useMemo(
+  //   () => calculateMonthlyTrend(allTransactions),
+  //   [allTransactions]
+  // );
 
   // --- Hàm hiển thị thông báo và tự động ẩn sau 3 giây ---
   const showMessage = (msg: string) => {

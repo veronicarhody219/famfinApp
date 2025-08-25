@@ -25,11 +25,11 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ transactions }) => {
     return `${day}/${month}/${year}`;
   };
 
-  const parseDate = (dateStr: string): Date | null => {
-    const [day, month, year] = dateStr.split("/").map(Number);
-    if (!day || !month || !year) return null;
-    return new Date(year, month - 1, day);
-  };
+  // const parseDate = (dateStr: string): Date | null => {
+  //   const [day, month, year] = dateStr.split("/").map(Number);
+  //   if (!day || !month || !year) return null;
+  //   return new Date(year, month - 1, day);
+  // };
 
   const getYearMonth = (
     date: Date | null
@@ -42,9 +42,9 @@ const DashboardPage: React.FC<DashboardPageProps> = ({ transactions }) => {
   const comparisonPeriod1 = formatDate(comparisonDate1);
   const comparisonPeriod2 = formatDate(comparisonDate2);
 
-  const years = Array.from(
-    new Set(transactions.map((t) => new Date(t.date).getFullYear()))
-  ).sort((a, b) => b - a);
+  // const years = Array.from(
+  //   new Set(transactions.map((t) => new Date(t.date).getFullYear()))
+  // ).sort((a, b) => b - a);
 
   return (
     <div style={{ padding: "20px" }}>
